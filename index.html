@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>PPSM Archive — Mobile</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --green:    #1a6b4a; --green-lt: #e8f5ee;
+  --amber:    #c07b1a; --amber-lt: #fef3e2;
+  --red:      #c0392b; --red-lt:   #fdecea;
+  --blue:     #1a5fa8; --blue-lt:  #e8f0fc;
+  --bg:       #f4f6f8; --card:     #ffffff;
+  --text:     #1a1c1e; --muted:    #6b7280; --border: #e5e7eb;
+  --radius:   14px;    --shadow:   0 2px 8px rgba(0,0,0,.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
+
+.topbar { background: var(--green); color: #fff; padding: 16px 18px 14px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(26,107,74,.3); }
+.topbar-logo { font-size: 18px; font-weight: 700; }
+.topbar-sub  { font-size: 11px; opacity: .7; margin-top: 1px; }
+.topbar-right { margin-left: auto; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,.25); display: inline-block; }
+.status-dot.offline { background: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,.25); animation: pulse-red 1.5s infinite; }
+@keyframes pulse-red { 0%,100%{box-shadow:0 0 0 3px rgba(248,113,113,.25)} 50%{box-shadow:0 0 0 6px rgba(248,113,113,.1)} }
+
+.nav { display: flex; background: var(--card); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; position: sticky; top: 58px; z-index: 99; }
+.nav::-webkit-scrollbar { display: none; }
+.nav-item { flex: 1; min-width: 68px; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 4px 7px; font-size: 10px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.nav-item.active { color: var(--green); border-color: var(--green); }
+.nav-icon { font-size: 17px; }
+
+.page { display: none; padding: 16px; }
+.page.active { display: block; }
+
+.card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 14px; }
+.card-header { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.card-title  { font-size: 14px; font-weight: 700; }
+.card-body   { padding: 14px 16px; }
+
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.field input, .field select, .field textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text); outline: none; }
+.field input:focus, .field select:focus { border-color: var(--green); background: #fff; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; font-family: inherit; border: none; cursor: pointer; width: 100%; transition: transform .1s; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--green); color: #fff; }
+.btn-outline  { background: transparent; color: var(--green); border: 1.5px solid var(--green); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.list-item { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 12px; cursor: pointer; }
+.list-item:last-child { border-bottom: none; }
+.list-item.selected { background: var(--green-lt); }
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+.avatar-green { background: var(--green-lt); color: var(--green); }
+.avatar-amber { background: var(--amber-lt); color: var(--amber); }
+.avatar-blue  { background: var(--blue-lt);  color: var(--blue); }
+.item-main  { flex: 1; min-width: 0; }
+.item-name  { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-sub   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.item-right { text-align: right; flex-shrink: 0; }
+.item-amount{ font-size: 14px; font-weight: 700; font-family: 'DM Mono', monospace; }
+.item-date  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.pill { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
+.pill-green { background: var(--green-lt); color: var(--green); }
+.pill-amber { background: var(--amber-lt); color: var(--amber); }
+.pill-blue  { background: var(--blue-lt);  color: var(--blue); }
+
+.cart-item { display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); gap: 8px; }
+.cart-item:last-child { border-bottom: none; }
+.qty-control { display: flex; align-items: center; gap: 5px; }
+.qty-btn { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--green); background: transparent; color: var(--green); font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.qty-num { font-size: 14px; font-weight: 600; min-width: 22px; text-align: center; font-family: 'DM Mono', monospace; }
+
+.summary-bar { background: var(--green); color: #fff; border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.summary-value { font-size: 20px; font-weight: 700; font-family: 'DM Mono', monospace; }
+
+.search-wrap { position: relative; margin-bottom: 12px; }
+.search-wrap input { width: 100%; padding: 10px 12px 10px 36px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 14px; font-family: inherit; background: var(--card); outline: none; }
+.search-wrap input:focus { border-color: var(--green); }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1c1e; color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity .25s, transform .25s; z-index: 999; white-space: nowrap; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--green); }
+.toast.error   { background: var(--red); }
+
+.section-title { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; margin: 16px 0 8px; }
+.loader { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 36px 20px; color: var(--muted); }
+.empty-icon { font-size: 38px; margin-bottom: 10px; }
+.empty-text { font-size: 14px; }
+.setting-row { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); gap: 10px; }
+.setting-row:last-child { border-bottom: none; }
+.setting-label { flex: 1; font-size: 14px; }
+.setting-value { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.setting-input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: 'DM Mono', monospace; background: var(--bg); outline: none; }
+.setting-input:focus { border-color: var(--green); }
+.badge-diam   { display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:#f3f4f6;color:#6b7280; }
+.badge-terima { display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--green-lt);color:var(--green); }
+.badge-tolak  { display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--red-lt);color:var(--red); }
+
+/* Searchable Dropdown */
+.dropdown-wrap { position:relative; }
+.dropdown-input-row { display:flex; align-items:center; gap:8px; border:1.5px solid var(--border); border-radius:10px; padding:10px 12px; background:var(--bg); cursor:pointer; min-height:42px; }
+.dropdown-input-row:hover, .dropdown-input-row.open { border-color:var(--green); background:#fff; }
+.dropdown-panel { position:absolute; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1.5px solid var(--green); border-radius:10px; z-index:200; box-shadow:0 6px 20px rgba(0,0,0,.12); }
+.dropdown-opt { padding:10px 14px; font-size:14px; cursor:pointer; border-bottom:1px solid var(--border); }
+.dropdown-opt:last-child { border-bottom:none; }
+.dropdown-opt:hover, .dropdown-opt.active { background:var(--green-lt); color:var(--green); font-weight:600; }
+.dropdown-empty { padding:14px; text-align:center; font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-logo">PPSM Archive</div>
+    <div class="topbar-sub">Sistem Manajemen Pondok</div>
+  </div>
+  <div class="topbar-right"><span class="status-dot" id="statusDot"></span></div>
+</div>
+
+<div class="nav">
+  <div class="nav-item active" onclick="goPage('pembelian')"><span class="nav-icon">🛒</span>Beli</div>
+  <div class="nav-item" onclick="goPage('riwayat')"><span class="nav-icon">📋</span>Riwayat</div>
+  <div class="nav-item" onclick="goPage('uangmakan')"><span class="nav-icon">💰</span>UM</div>
+  <div class="nav-item" style="position:relative" onclick="goPage('pengaturan')">
+    <span class="nav-icon">⚙️</span>Atur
+    <span id="queueBadge" style="display:none;position:absolute;top:4px;right:6px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center;line-height:16px"></span>
+  </div>
+</div>
+
+<!-- Banner offline -->
+<div id="offlineBanner" style="display:none;background:#fdecea;border-bottom:2px solid var(--red);padding:8px 16px;align-items:center;gap:10px;position:sticky;top:58px;z-index:98">
+  <span style="font-size:16px">📵</span>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:700;color:var(--red)">Tidak ada koneksi internet</div>
+    <div style="font-size:11px;color:var(--red)">Data tersimpan lokal — akan otomatis dikirim saat online</div>
+  </div>
+</div>
+
+<!-- ══ PAGE: INPUT PEMBELIAN (→ t_pembelian) ══ -->
+<div class="page active" id="page-pembelian">
+
+  <div class="field">
+    <label>Tanggal Pembelian (tanggal_pembelian)</label>
+    <input type="date" id="tglPembelian">
+  </div>
+  
+  <!-- Form input item -->
+  <p class="section-title">Tambah Item Pembelian</p>
+  <div class="card">
+    <div class="card-body">
+
+      <!-- Dropdown nama barang + search -->
+      <div class="field" style="position:relative">
+        <label>Nama Barang (nm_databelanja)</label>
+        <div class="dropdown-wrap" id="dropdownWrap">
+          <div class="dropdown-input-row" onclick="toggleDropdown()">
+            <span id="selectedNama" style="flex:1;font-size:14px;color:var(--text)">— Ketik untuk mencari barang —</span>
+            <span style="color:var(--muted);font-size:12px">▾</span>
+          </div>
+          <div class="dropdown-panel" id="dropdownPanel" style="display:none">
+            <div style="padding:8px 10px 6px">
+              <input type="text" id="searchDropdown" placeholder="🔍  Cari nama barang…"
+                style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;background:var(--bg)"
+                oninput="filterDropdown()" onclick="event.stopPropagation()">
+            </div>
+            <div id="dropdownList" style="max-height:200px;overflow-y:auto"></div>
+          </div>
+        </div>
+        <input type="hidden" id="selectedIdBarang">
+      </div>
+
+      <!-- Jumlah + Satuan side by side -->
+      <div style="display:flex;gap:10px">
+        <div class="field" style="flex:1">
+          <label>Jumlah</label>
+          <input type="number" id="inputJumlah" placeholder="0" min="0" step="0.5" value="1"
+            style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:var(--bg);outline:none">
+        </div>
+        <div class="field" style="flex:1">
+          <label>Satuan</label>
+          <select id="inputSatuan"
+            style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:var(--bg);outline:none;appearance:auto">
+            <option value="Kg">Kg</option>
+            <option value="Gram">Gram</option>
+            <option value="Butir">Butir</option>
+            <option value="Tong">Tong</option>
+            <option value="Lembar">Lembar</option>
+            <option value="Genrong">Genrong</option>
+            <option value="Batang">Batang</option>
+            <option value="Biji">Biji</option>
+            <option value="Kurir">Kurir</option>
+            <option value="Kwintal">Kwintal</option>
+            <option value="Liter">Liter</option>
+            <option value="Ikat">Ikat</option>
+            <option value="Pcs">Pcs</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Harga -->
+      <div class="field">
+        <label>Harga Total Pembelian (Rp) — sesuai nota</label>
+        <input type="text" id="inputHarga" placeholder="Masukkan total harga di nota…" inputmode="numeric"
+          style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;background:var(--bg);outline:none"
+          oninput="formatHargaInput(this)">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">⚠️ Isi sesuai total yang tertulis di nota, bukan harga per satuan</div>
+      </div>
+
+      <button class="btn btn-primary" onclick="tambahKeKeranjang()" style="margin-top:4px">
+        ➕ Tambah ke Keranjang
+      </button>
+    </div>
+  </div>
+
+  <!-- Keranjang -->
+  <p class="section-title">Keranjang</p>
+  <div class="summary-bar">
+    <div>
+      <div style="font-size:12px;opacity:.8">Total Pembelian</div>
+      <div class="summary-value" id="totalBelanja">Rp 0</div>
+    </div>
+    <span id="itemCount" style="font-size:12px;opacity:.8">0 item</span>
+  </div>
+  <div class="card" id="cartList">
+    <div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">Keranjang kosong</div></div>
+  </div>
+
+  
+  <button class="btn btn-primary" id="btnSimpanPembelian" onclick="simpanPembelian()">
+    💾 Simpan & Kirim ke Drive
+  </button>
+</div>
+
+<!-- ══ PAGE: RIWAYAT t_pembelian ══ -->
+<div class="page" id="page-riwayat">
+  <!-- Breadcrumb -->
+  <div id="riwayatBreadcrumb" style="display:none;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <span id="bcBulan" onclick="riwayatGoLevel('bulan')" style="font-size:12px;color:var(--green);font-weight:600;cursor:pointer"></span>
+    <span id="bcSepMinggu" style="font-size:12px;color:var(--muted);display:none"> › </span>
+    <span id="bcMinggu" onclick="riwayatGoLevel('minggu')" style="font-size:12px;color:var(--green);font-weight:600;cursor:pointer;display:none"></span>
+  </div>
+
+  <!-- Level 1: Bulan/Tahun -->
+  <div id="riwayatLevelBulan">
+    <p class="section-title">Riwayat Belanja — Pilih Bulan</p>
+    <div class="card" id="listBulan">
+      <div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Memuat…</div></div>
+    </div>
+  </div>
+
+  <!-- Level 2: Minggu -->
+  <div id="riwayatLevelMinggu" style="display:none">
+    <p class="section-title" id="titleMinggu">Pilih Minggu</p>
+    <div class="card" id="listMinggu"></div>
+  </div>
+
+  <!-- Level 3: Data Belanja -->
+  <div id="riwayatLevelDetail" style="display:none">
+    <p class="section-title" id="titleDetail">Data Belanja</p>
+    <div id="summaryBelanja" style="background:var(--green);color:#fff;border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:11px;opacity:.8">Total Periode</div><div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace" id="totalPeriode">Rp 0</div></div>
+      <div style="font-size:12px;opacity:.8" id="jmlItemPeriode">0 item</div>
+    </div>
+    <div class="card" id="listDetail"></div>
+  </div>
+</div>
+
+<!-- ══ PAGE: UANG MAKAN (→ pembayaran_um) ══ -->
+<div class="page" id="page-uangmakan">
+  <p class="section-title">Pembayaran Uang Makan</p>
+  <div class="card">
+    <div class="card-header"><span>👤</span><span class="card-title">Pilih Siswa Mukim</span></div>
+    <div class="card-body" style="padding-bottom:6px">
+      <div class="search-wrap" style="margin-bottom:8px">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchSiswaUM" placeholder="Cari nama siswa…" oninput="filterSiswaUM()">
+      </div>
+    </div>
+    <div id="listSiswaUM">
+      <div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Memuat…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ PAGE: DATA SISWA ══ -->
+<!-- ══ PAGE: PENGATURAN ══ -->
+<div class="page" id="page-pengaturan">
+
+  <!-- SETUP WIZARD — muncul hanya jika URL GAS belum diisi -->
+  <div id="setupWizard" style="display:none;background:#fff;border:2px solid var(--green);border-radius:var(--radius);padding:16px;margin-bottom:14px">
+    <div style="font-size:15px;font-weight:700;color:var(--green);margin-bottom:10px">🚀 Cara Setup — 3 Langkah</div>
+    <div style="font-size:13px;line-height:1.7;color:var(--text)">
+      <b>Langkah 1 — Deploy GAS:</b><br>
+      Buka <a href="https://script.google.com" target="_blank" style="color:var(--green)">script.google.com</a>, buat project baru, paste kode GAS v4.2, lalu:<br>
+      <span style="background:var(--green-lt);color:var(--green);font-size:12px;padding:2px 8px;border-radius:6px;font-weight:600">Deploy → New Deployment → Web App → Execute as: Me → Who has access: Anyone → Deploy</span><br><br>
+      <b>Langkah 2 — Izinkan akses Drive:</b><br>
+      Saat pertama deploy, Google minta izin akses Drive — klik <b>Allow</b>. Jika ada popup <i>"does not have permission to call UrlFetchApp"</i>, berarti perlu jalankan fungsi <code>testKoneksi()</code> sekali dari editor GAS untuk grant permission.<br><br>
+      <b>Langkah 3 — Isi URL di bawah:</b><br>
+      Salin URL deployment (format: <code>https://script.google.com/macros/s/…/exec</code>) ke kolom <b>URL Apps Script</b> di bawah, lalu klik <b>💾 Simpan</b>.
+    </div>
+    <div style="margin-top:12px;padding:10px;background:#fdecea;border-radius:8px;font-size:12px;color:var(--red)">
+      ⚠️ <b>Penyebab error "does not have permission to call UrlFetchApp.fetch":</b><br>
+      GAS belum pernah dijalankan manual. Buka GAS editor → pilih fungsi <code>testKoneksi</code> → klik Run → setujui semua permission yang diminta.
+    </div>
+  </div>
+
+  <!-- Panel status koneksi -->
+  <div id="statusPanel" style="background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;margin-bottom:14px">
+    <div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:10px">Status Koneksi</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="chkInternet" style="font-size:18px">⬜</span>
+        <span style="font-size:13px">Internet / navigator.onLine</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="chkGASUrl" style="font-size:18px">⬜</span>
+        <span style="font-size:13px">URL Apps Script terisi</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="chkGASReach" style="font-size:18px">⬜</span>
+        <span style="font-size:13px">GAS dapat dihubungi (ping)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="chkDrive" style="font-size:18px">⬜</span>
+        <span style="font-size:13px">Drive dapat membaca data</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="chkPhpUrl" style="font-size:18px">⬜</span>
+        <span style="font-size:13px">URL PHP Receiver terisi (opsional)</span>
+      </div>
+    </div>
+    <div id="diagMsg" style="display:none;margin-top:10px;padding:10px;background:var(--red-lt);border-radius:8px;font-size:12px;color:var(--red)"></div>
+    <button class="btn btn-outline" onclick="runDiagnostik()" style="margin-top:12px;padding:8px">🔍 Jalankan Diagnostik</button>
+  </div>
+
+  <!-- Notifikasi antrian pending -->
+  <div id="pengaturanNotif" style="display:none;background:var(--amber-lt);border:1.5px solid var(--amber);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;align-items:flex-start;gap:10px">
+    <span style="font-size:20px">⚠️</span>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700;color:var(--amber)">Ada data belum ter-push ke Drive!</div>
+      <div style="font-size:12px;color:var(--amber);margin-top:2px">Data tersimpan lokal saat offline. Sambungkan internet lalu tekan tombol di bawah.</div>
+    </div>
+  </div>
+
+  <!-- Antrian Pending -->
+  <p class="section-title">Antrian Offline (belum ke Drive)</p>
+  <div class="card" style="margin-bottom:14px">
+    <div id="queueList">
+      <div style="padding:12px 16px;font-size:13px;color:var(--green)">✅ Semua data sudah ter-push ke Drive</div>
+    </div>
+    <div style="padding:10px 16px 14px">
+      <button class="btn btn-primary" id="btnFlushQueue" onclick="tryFlushQueue()" style="background:var(--amber);border-color:var(--amber)">
+        📤 Push Semua ke Drive
+      </button>
+    </div>
+  </div>
+
+  <!-- Log Harian -->
+  <p class="section-title">Log Input Harian (7 hari terakhir)</p>
+  <div class="card" style="margin-bottom:14px">
+    <div id="dailyLogList">
+      <div style="padding:14px;text-align:center;font-size:13px;color:var(--muted)">Belum ada data tersimpan</div>
+    </div>
+  </div>
+
+  <p class="section-title">Konfigurasi</p>
+  <div class="card">
+    <div class="setting-row"><span class="setting-label">URL Apps Script</span></div>
+    <div style="padding:0 16px 14px">
+      <input class="setting-input" id="cfgScriptUrl" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <div class="setting-row"><span class="setting-label">Secret Token</span></div>
+    <div style="padding:0 16px 14px">
+      <input class="setting-input" id="cfgToken" value="ppsm-archive-secret-2024">
+    </div>
+    <div class="setting-row"><span class="setting-label">URL PHP Receiver</span></div>
+    <div style="padding:0 16px 6px">
+      <input class="setting-input" id="cfgPhpUrl" placeholder="https://…/ppsm-archive/receiver.php">
+    </div>
+    <div id="receiverWarning" style="display:none;margin:0 16px 14px;padding:10px 12px;background:#fdecea;border-radius:8px;border:1px solid var(--red)">
+      <div style="font-size:12px;font-weight:700;color:var(--red)">⚠️ URL Receiver PHP belum diisi!</div>
+      <div style="font-size:11px;color:var(--red);margin-top:3px">Data hanya tersimpan ke Google Drive, <strong>tidak masuk ke MySQL</strong>. Isi dengan URL receiver aktif (ngrok/localhost/domain).</div>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">ID Petugas (id_pengguna_petugas)</span>
+    </div>
+    <div style="padding:0 16px 14px">
+      <input class="setting-input" id="cfgPetugas" value="2" placeholder="2 = Sri Ngatoyah (Kepala Dapur)">
+    </div>
+    <div style="padding:0 16px 14px;display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="simpanConfig()" style="flex:1">💾 Simpan</button>
+      <button class="btn btn-outline" onclick="testKoneksi()" style="flex:1">🔌 Tes</button>
+    </div>
+  </div>
+  <p class="section-title">Info Sistem</p>
+  <div class="card">
+    <div class="setting-row"><span class="setting-label">Database</span><span class="setting-value">ppsm-archive</span></div>
+    <div class="setting-row"><span class="setting-label">Apps Script aktif</span><span class="setting-value" id="infoGAS">—</span></div>
+    <div class="setting-row"><span class="setting-label">Last Sync</span><span class="setting-value" id="lastSync">—</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// PPSM Archive — Mobile App
+// Offline-first dengan antrian lokal + push ke GDrive saat online
+// ══════════════════════════════════════════════════════════════
+
+// ─── KONSTANTA STORAGE KEY ────────────────────────────────────
+const CFG_KEY        = 'ppsm_cfg_v2';
+const QUEUE_KEY      = 'ppsm_offline_queue';   // antrian belum ter-push
+const PUSHED_KEY     = 'ppsm_pushed_ids';       // set _submit_id yg sudah berhasil push (anti-duplikat)
+const DAILY_LOG_KEY  = 'ppsm_daily_log';        // log input harian (pembelian + UM)
+const MASTER_CACHE   = 'ppsm_master_cache';     // cache databelanja dari Drive
+
+// ─── CONFIG ───────────────────────────────────────────────────
+let cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+cfg.token   = cfg.token   || 'ppsm-archive-secret-2024';
+cfg.petugas = cfg.petugas || 2;
+
+// ─── STATE ────────────────────────────────────────────────────
+let masterData = [], siswaData = [], riwayatData = [], umData = [];
+let cart = {};
+let selectedSiswaUM = null;
+let filterSiswaStatus = 'Mukim';
+let isOnline = navigator.onLine;
+
+// ─── OFFLINE QUEUE HELPERS ────────────────────────────────────
+function getQueue() {
+  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveQueue(q) {
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+}
+function getPushedIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(PUSHED_KEY) || '[]')); } catch(e) { return new Set(); }
+}
+function addPushedId(id) {
+  const s = getPushedIds();
+  s.add(String(id));
+  // Batasi maksimal 500 ID agar tidak bengkak (FIFO)
+  const arr = Array.from(s);
+  if (arr.length > 500) arr.splice(0, arr.length - 500);
+  localStorage.setItem(PUSHED_KEY, JSON.stringify(arr));
+}
+// Tambah item ke antrian offline — cek duplikat lebih dulu
+function enqueue(payload) {
+  const pushedIds = getPushedIds();
+  // Kumpulkan semua _submit_id yang relevan dari payload
+  const submitIds = [];
+  if (payload.data?._submit_id)  submitIds.push(String(payload.data._submit_id));
+  if (payload.data?.rows)        payload.data.rows.forEach(r => { if (r._submit_id) submitIds.push(String(r._submit_id)); });
+
+  // Cek apakah semua submit_id sudah pernah berhasil di-push
+  if (submitIds.length > 0 && submitIds.every(id => pushedIds.has(id))) {
+    console.warn('SKIP enqueue — semua _submit_id sudah pernah di-push:', submitIds);
+    return false; // duplikat, tidak perlu antri
+  }
+
+  const q = getQueue();
+  // Cek apakah sudah ada di antrian (belum di-push)
+  const alreadyQueued = q.some(item => {
+    const existingIds = [];
+    if (item.payload?.data?._submit_id) existingIds.push(String(item.payload.data._submit_id));
+    if (item.payload?.data?.rows)       item.payload.data.rows.forEach(r => { if (r._submit_id) existingIds.push(String(r._submit_id)); });
+    return submitIds.some(id => existingIds.includes(id));
+  });
+  if (alreadyQueued) {
+    console.warn('SKIP enqueue — sudah ada di antrian:', submitIds);
+    return false;
+  }
+
+  q.push({ id: Date.now(), payload, enqueued_at: new Date().toISOString() });
+  saveQueue(q);
+  return true;
+}
+
+// ─── DAILY LOG HELPERS ────────────────────────────────────────
+function getDailyLog() {
+  try { return JSON.parse(localStorage.getItem(DAILY_LOG_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveDailyLog(log) { localStorage.setItem(DAILY_LOG_KEY, JSON.stringify(log)); }
+function todayKey() { return new Date().toISOString().slice(0,10); }
+
+function addToDaily(type, data) {
+  // type: 'pembelian' | 'um'
+  const log   = getDailyLog();
+  const today = todayKey();
+  if (!log[today]) log[today] = { pembelian: [], um: [] };
+  const entry = { ...data, _logged_at: new Date().toISOString() };
+  log[today][type].push(entry);
+  // Bersihkan log > 30 hari
+  Object.keys(log).sort().slice(0, -30).forEach(k => delete log[k]);
+  saveDailyLog(log);
+}
+
+// ─── ONLINE/OFFLINE DETECTION ─────────────────────────────────
+// navigator.onLine hanya cek koneksi ke router, bukan ke internet.
+// Kita tambahkan heartbeat ping ke GAS untuk deteksi koneksi nyata.
+window.addEventListener('online',  () => { checkRealConnectivity(); });
+window.addEventListener('offline', () => { setOnline(false); });
+
+let _heartbeatTimer = null;
+function startHeartbeat() {
+  if (_heartbeatTimer) return;
+  // Ping setiap 30 detik
+  _heartbeatTimer = setInterval(checkRealConnectivity, 30000);
+}
+function stopHeartbeat() {
+  if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
+}
+
+// Cek konektivitas nyata ke GAS
+async function checkRealConnectivity() {
+  if (!navigator.onLine) { setOnline(false); return; }
+  if (!cfg.scriptUrl) {
+    // Belum ada URL GAS — anggap online jika navigator.onLine
+    setOnline(true);
+    return;
+  }
+  // Ping GET ke GAS — cukup cek respons HTTP 200
+  const pingUrl = cfg.scriptUrl + '?action=ping&token=' + encodeURIComponent(cfg.token) + '&_=' + Date.now();
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 8000); // timeout 8 detik
+    const r = await fetch(pingUrl, { method: 'GET', signal: ctrl.signal, cache: 'no-store', redirect: 'follow' });
+    clearTimeout(tid);
+    const wasOffline = !isOnline;
+    // GAS aktif selalu balas HTTP 200, tipe 'basic' atau 'opaque' tergantung CORS
+    setOnline(r.ok || r.status === 200 || r.type === 'opaque');
+    if (wasOffline && isOnline) {
+      // Baru kembali online — flush antrian
+      toast('🌐 Koneksi kembali! Mengirim data offline…', 'success');
+      tryFlushQueue();
+    }
+  } catch(e) {
+    const wasOnline = isOnline;
+    setOnline(false);
+    if (wasOnline) toast('📵 Koneksi terputus — data tetap tersimpan lokal.', 'error');
+  }
+}
+
+function updateOnlineUI() {
+  document.getElementById('statusDot').className = 'status-dot' + (isOnline ? '' : ' offline');
+  const banner = document.getElementById('offlineBanner');
+  if (banner) banner.style.display = isOnline ? 'none' : 'flex';
+  updateQueueBadge();
+}
+function setOnline(v) {
+  isOnline = v;
+  updateOnlineUI();
+}
+
+// Badge antrian di nav Atur
+function updateQueueBadge() {
+  const q = getQueue();
+  const badge = document.getElementById('queueBadge');
+  const notif  = document.getElementById('pengaturanNotif');
+  if (badge)  { badge.textContent = q.length; badge.style.display = q.length ? 'inline-flex' : 'none'; }
+  if (notif)  { notif.style.display = q.length ? 'flex' : 'none'; }
+  renderQueueList();
+  renderDailyLogList();
+}
+
+// ─── FLUSH ANTRIAN — kirim semua yang pending ke GDrive ───────
+let isFlushing = false;
+async function tryFlushQueue() {
+  if (isFlushing || !isOnline || !cfg.scriptUrl) return;
+  const q = getQueue();
+  if (!q.length) return;
+
+  isFlushing = true;
+  updateFlushBtn(true);
+  let berhasil = 0, gagal = 0;
+
+  for (let i = 0; i < q.length; i++) {
+    const item = q[i];
+    try {
+      const res = await callGAS(item.payload);
+      if (res?.success) {
+        // Tandai semua _submit_id dari item ini sebagai sudah di-push
+        const sids = [];
+        if (item.payload?.data?._submit_id) sids.push(String(item.payload.data._submit_id));
+        if (item.payload?.data?.rows)       item.payload.data.rows.forEach(r => { if (r._submit_id) sids.push(String(r._submit_id)); });
+        sids.forEach(id => addPushedId(id));
+
+        // Hapus dari antrian
+        const qq = getQueue();
+        saveQueue(qq.filter(x => x.id !== item.id));
+        berhasil++;
+      } else {
+        gagal++;
+      }
+    } catch(e) {
+      gagal++;
+    }
+  }
+
+  isFlushing = false;
+  updateFlushBtn(false);
+  updateQueueBadge();
+
+  if (berhasil > 0) {
+    toast(`✅ ${berhasil} data offline berhasil di-push ke Drive!`, 'success');
+    const ts = new Date().toLocaleString('id-ID');
+    localStorage.setItem('ppsm_last_sync', ts);
+    const el = document.getElementById('lastSync');
+    if (el) el.textContent = ts;
+  }
+  if (gagal > 0) toast(`⚠️ ${gagal} data gagal di-push, coba lagi nanti.`, 'error');
+}
+
+function updateFlushBtn(loading) {
+  const btn = document.getElementById('btnFlushQueue');
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading ? '<span class="loader"></span> Mengirim…' : '📤 Push Semua ke Drive';
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────
+function goPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  ['pembelian','riwayat','uangmakan','pengaturan']
+    .forEach((k,i) => { if (k===p) document.querySelectorAll('.nav-item')[i].classList.add('active'); });
+  if (p === 'pengaturan') { updateQueueBadge(); renderDailyLogList(); }
+  // Refresh data siswa & UM dari MySQL setiap kali tab Uang Makan dibuka
+  if (p === 'uangmakan') refreshSiswaUM();
+}
+
+// ─── TOAST ───────────────────────────────────────────────────
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ─── FORMAT HELPERS ──────────────────────────────────────────
+function fmt(n) { return 'Rp ' + Number(n||0).toLocaleString('id-ID'); }
+function fmtNum(n) { const v = Number(n||0); if (!v) return ''; return v.toLocaleString('id-ID'); }
+function parseRp(s) {
+  if (typeof s === 'number') return s;
+  return parseInt(String(s).replace(/\./g,'').replace(/,/g,''), 10) || 0;
+}
+function formatHargaInput(el) {
+  const raw = el.value.replace(/\./g,'').replace(/[^0-9]/g,'');
+  const num = parseInt(raw, 10) || 0;
+  const pos = el.selectionStart, prevLen = el.value.length;
+  el.value = num ? num.toLocaleString('id-ID') : '';
+  const diff = el.value.length - prevLen;
+  try { el.setSelectionRange(pos + diff, pos + diff); } catch(e){}
+}
+function updateHargaCart(el) {
+  const raw = el.value.replace(/\./g,'').replace(/[^0-9]/g,'');
+  const num = parseInt(raw, 10) || 0;
+  const id  = Number(el.dataset.id);
+  if (cart[id]) cart[id].harga_pembelian = num;
+  const pos = el.selectionStart, prevLen = el.value.length;
+  el.value = num ? num.toLocaleString('id-ID') : '';
+  const diff = el.value.length - prevLen;
+  try { el.setSelectionRange(pos + diff, pos + diff); } catch(e){}
+  refreshCartTotals();
+}
+function updateHargaCartBlur(el) { renderCart(); }
+function refreshCartTotals() {
+  const items = Object.values(cart);
+  let total = 0;
+  items.forEach(i => { total += i.harga_pembelian; });
+  document.getElementById('totalBelanja').textContent = fmt(total);
+  document.getElementById('itemCount').textContent = items.length + ' item';
+}
+
+// ─── CALL GAS ─────────────────────────────────────────────────
+async function callGAS(payload) {
+  if (!cfg.scriptUrl) { toast('❌ URL Apps Script belum diisi (tab Atur)!', 'error'); return null; }
+  try {
+    const body = {
+      secret_token: cfg.token,
+      receiver_url: cfg.phpUrl || '',
+      ...payload,
+    };
+    // PENTING: GAS membaca request body lewat e.postData.contents.
+    // Content-Type harus 'text/plain' — bukan 'application/json' —
+    // karena 'application/json' memicu preflight CORS OPTIONS yang
+    // diblokir oleh GAS. Dengan 'text/plain', request dikirim sebagai
+    // simple request (no preflight) dan GAS tetap bisa JSON.parse isinya.
+    const r = await fetch(cfg.scriptUrl, {
+      method:   'POST',
+      redirect: 'follow',
+      headers:  { 'Content-Type': 'text/plain' },
+      body:     JSON.stringify(body),
+    });
+    const text = await r.text();
+    try { return JSON.parse(text); } catch(e) { return null; }
+  } catch(e) { return null; }
+}
+
+// ─── LOAD DATA ────────────────────────────────────────────────
+async function loadData() {
+  if (!cfg.scriptUrl) { toast('⚠️ Isi URL Apps Script di tab Atur!', 'error'); return; }
+  if (!isOnline) {
+    // Offline: pakai cache master saja agar dropdown barang tetap bisa dipakai
+    const cached = localStorage.getItem(MASTER_CACHE);
+    if (cached) {
+      try {
+        const c = JSON.parse(cached);
+        masterData = c.databelanja || [];
+        siswaData  = c.siswaData   || [];
+        renderDropdownList(document.getElementById('searchDropdown')?.value || '');
+        renderSiswaUM();
+        toast('📵 Offline — data dari cache lokal', 'error');
+      } catch(e) {}
+    } else {
+      toast('📵 Offline — belum ada cache. Sambungkan internet dulu.', 'error');
+    }
+    updateOnlineUI();
+    return;
+  }
+  try {
+    const r   = await fetch(cfg.scriptUrl + '?action=get_data&token=' + encodeURIComponent(cfg.token), { redirect: 'follow' });
+    const text = await r.text();
+    const res = JSON.parse(text);
+    if (!res.success || !res.data) throw new Error(res.message || 'Data kosong');
+
+    const db    = res.data;
+    masterData  = db.databelanja   || [];
+    riwayatData = db.t_pembelian   || [];
+    umData      = db.pembayaran_um || [];
+
+    const penggunaMap = {};
+    (db.pengguna || []).forEach(p => { penggunaMap[p.id_pengguna] = p; });
+    siswaData = (db.pengguna_siswa || []).map(ps => ({
+      ...ps,
+      nm_pengguna: penggunaMap[ps.id_pengguna]?.nm_pengguna || ps.nm_pengguna || ('Siswa #' + ps.id_pengguna_siswa),
+    }));
+
+    const masterMap = {};
+    masterData.forEach(m => { masterMap[m.id_databelanja] = m.nm_databelanja; });
+    riwayatData = riwayatData.map(r => ({
+      ...r, nm_databelanja: r.nm_databelanja || masterMap[r.id_databelanja] || '—',
+    }));
+
+    const siswaMap = {};
+    siswaData.forEach(s => { siswaMap[s.id_pengguna_siswa] = s.nm_pengguna; });
+    umData = umData.map(u => ({
+      ...u, nm_pengguna: u.nm_pengguna || siswaMap[u.id_pengguna_siswa] || ('Siswa #' + u.id_pengguna_siswa),
+    }));
+
+    // Simpan cache master untuk mode offline
+    localStorage.setItem(MASTER_CACHE, JSON.stringify({ databelanja: masterData, siswaData }));
+
+    renderAll();
+    setOnline(true);
+    const ts = new Date().toLocaleString('id-ID');
+    localStorage.setItem('ppsm_last_sync', ts);
+    document.getElementById('lastSync').textContent = ts;
+
+    // Setelah berhasil load, coba flush antrian offline yang pending
+    if (getQueue().length > 0) tryFlushQueue();
+
+  } catch(e) {
+    // Gagal fetch Drive — cek apakah memang offline atau hanya GAS error
+    await checkRealConnectivity();
+    toast('❌ Gagal memuat dari Drive: ' + e.message, 'error');
+    // Fallback ke cache
+    const cached = localStorage.getItem(MASTER_CACHE);
+    if (cached) {
+      try {
+        const c = JSON.parse(cached);
+        masterData = c.databelanja || [];
+        siswaData  = c.siswaData   || [];
+        renderDropdownList(document.getElementById('searchDropdown')?.value || '');
+        renderSiswaUM();
+      } catch(ex) {}
+    }
+  }
+}
+
+function renderAll() {
+  renderDropdownList(document.getElementById('searchDropdown')?.value || '');
+  renderSiswaUM();
+  renderRiwayat(); renderUM();
+  updateQueueBadge();
+}
+
+// ── Fallback: bangun siswaData dari Drive (jika phpUrl kosong) ──
+// PERINGATAN: mungkin gagal tampilkan nama jika Drive tidak punya data pengguna.
+function _buildSiswaFromDrive(db) {
+  const penggunaMap = {};
+  (db.pengguna || []).forEach(p => { penggunaMap[p.id_pengguna] = p; });
+  return (db.pengguna_siswa || []).map(ps => ({
+    ...ps,
+    nm_pengguna: penggunaMap[ps.id_pengguna]?.nm_pengguna || ps.nm_pengguna || ('Siswa #' + ps.id_pengguna_siswa),
+    // _id_pengguna = id dari tabel pengguna, dikirim ke kolom id_pengguna_siswa di pembayaran_um
+    _id_pengguna: ps.id_pengguna || ps.id_pengguna_siswa,
+  }));
+}
+
+// ── Fallback: bangun umData dari Drive dengan resolusi nama ──
+function _buildUMFromDrive(db) {
+  const penggunaMap = {};
+  (db.pengguna || []).forEach(p => { penggunaMap[p.id_pengguna] = p; });
+  const namaBySiswaId = {};
+  (db.pengguna_siswa || []).forEach(ps => {
+    namaBySiswaId[ps.id_pengguna_siswa] = penggunaMap[ps.id_pengguna]?.nm_pengguna || ('Siswa #' + ps.id_pengguna_siswa);
+  });
+  return (db.pembayaran_um || []).map(u => ({
+    ...u,
+    nm_pengguna: u.nm_pengguna || namaBySiswaId[u.id_pengguna_siswa] || ('Siswa #' + u.id_pengguna_siswa),
+  }));
+}
+
+// ─── SEARCHABLE DROPDOWN ──────────────────────────────────────
+let dropdownOpen = false;
+function renderDropdownList(q='') {
+  q = q.toLowerCase();
+  const items = masterData.filter(m => !q || m.nm_databelanja.toLowerCase().includes(q));
+  const el = document.getElementById('dropdownList');
+  if (!items.length) { el.innerHTML = '<div class="dropdown-empty">Tidak ditemukan</div>'; return; }
+  const selId = document.getElementById('selectedIdBarang').value;
+  el.innerHTML = items.map(m =>
+    `<div class="dropdown-opt${m.id_databelanja==selId?' active':''}"
+       onclick="pilihBarang(${m.id_databelanja},'${m.nm_databelanja.replace(/'/g,"\\'")}')">
+       ${m.nm_databelanja}</div>`
+  ).join('');
+}
+function toggleDropdown() {
+  const panel = document.getElementById('dropdownPanel');
+  const row   = document.querySelector('.dropdown-input-row');
+  dropdownOpen = !dropdownOpen;
+  panel.style.display = dropdownOpen ? '' : 'none';
+  row.classList.toggle('open', dropdownOpen);
+  if (dropdownOpen) {
+    document.getElementById('searchDropdown').value = '';
+    renderDropdownList();
+    setTimeout(() => document.getElementById('searchDropdown').focus(), 50);
+  }
+}
+function filterDropdown() { renderDropdownList(document.getElementById('searchDropdown').value); }
+function pilihBarang(id, nama) {
+  document.getElementById('selectedIdBarang').value = id;
+  document.getElementById('selectedNama').textContent = nama;
+  document.getElementById('selectedNama').style.color = 'var(--text)';
+  document.getElementById('dropdownPanel').style.display = 'none';
+  document.querySelector('.dropdown-input-row').classList.remove('open');
+  dropdownOpen = false;
+}
+document.addEventListener('click', function(e) {
+  if (!document.getElementById('dropdownWrap')?.contains(e.target)) {
+    document.getElementById('dropdownPanel').style.display = 'none';
+    document.querySelector('.dropdown-input-row')?.classList.remove('open');
+    dropdownOpen = false;
+  }
+});
+
+// ─── KERANJANG ────────────────────────────────────────────────
+function tambahKeKeranjang() {
+  const id   = Number(document.getElementById('selectedIdBarang').value);
+  const nama = document.getElementById('selectedNama').textContent;
+  if (!id) { toast('❌ Pilih nama barang dulu!','error'); return; }
+  const jumlah = parseFloat(document.getElementById('inputJumlah').value) || 0;
+  if (jumlah <= 0) { toast('❌ Isi jumlah!','error'); return; }
+  const satuan = document.getElementById('inputSatuan').value;
+  const harga  = parseRp(document.getElementById('inputHarga').value);
+  if (cart[id]) {
+    cart[id].jumlah_pembelian += jumlah;
+    cart[id].satuan = satuan;
+    cart[id].harga_pembelian = harga;
+  } else {
+    cart[id] = { id_databelanja: id, nm_databelanja: nama, jumlah_pembelian: jumlah, satuan, harga_pembelian: harga };
+  }
+  document.getElementById('selectedIdBarang').value = '';
+  document.getElementById('selectedNama').textContent = '— Ketik untuk mencari barang —';
+  document.getElementById('selectedNama').style.color = 'var(--muted)';
+  document.getElementById('inputJumlah').value = '1';
+  document.getElementById('inputHarga').value = '';
+  renderCart();
+  toast(`✅ ${nama} ditambahkan ke keranjang`, 'success');
+}
+// Refresh dropdown saat masterData diupdate
+function refreshMasterDropdown() {
+  if (dropdownOpen) renderDropdownList(document.getElementById('searchDropdown')?.value || '');
+}
+function renderCart() {
+  const items = Object.values(cart);
+  const el = document.getElementById('cartList');
+  if (!items.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🛒</div><div class="empty-text">Kosong</div></div>';
+    document.getElementById('totalBelanja').textContent = 'Rp 0';
+    document.getElementById('itemCount').textContent = '0 item';
+    return;
+  }
+  let total = 0;
+  el.innerHTML = items.map(i => {
+    total += i.harga_pembelian;
+    return `<div class="cart-item" style="flex-direction:column;align-items:stretch;gap:6px;padding:12px 16px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;font-size:13px;font-weight:700">${i.nm_databelanja}</div>
+        <button onclick="hapusKeranjang(${i.id_databelanja})"
+          style="background:var(--red-lt);border:none;border-radius:6px;padding:3px 8px;font-size:12px;color:var(--red);cursor:pointer;font-weight:600">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty(${i.id_databelanja},-1)">−</button>
+          <span class="qty-num">${i.jumlah_pembelian}</span>
+          <button class="qty-btn" onclick="changeQty(${i.id_databelanja},1)">+</button>
+        </div>
+        <select onchange="cart[${i.id_databelanja}].satuan=this.value;renderCart()"
+          style="border:1px solid var(--border);border-radius:6px;padding:4px 6px;font-size:12px;background:#fff;font-family:inherit">
+          ${['Kg','Gram','Butir','Tong','Lembar','Genrong','Batang','Biji','Kurir','Kwintal','Liter','Ikat','Pcs'].map(s =>
+            `<option value="${s}"${s===i.satuan?' selected':''}>${s}</option>`).join('')}
+        </select>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;margin-left:auto;gap:2px">
+          <input type="text" inputmode="numeric" value="${fmtNum(i.harga_pembelian)}" placeholder="Total harga nota" data-id="${i.id_databelanja}"
+            style="width:120px;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;background:#fff;text-align:right"
+            oninput="updateHargaCart(this)" onblur="updateHargaCartBlur(this)">
+          <span style="font-size:10px;color:var(--muted)">total nota</span>
+        </div>
+      </div>
+      <div style="text-align:right;font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green)">${fmt(i.harga_pembelian)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('totalBelanja').textContent = fmt(total);
+  document.getElementById('itemCount').textContent = items.length + ' item';
+}
+function hapusKeranjang(id) { delete cart[id]; renderCart(); }
+function changeQty(id, d) {
+  if (!cart[id]) return;
+  cart[id].jumlah_pembelian = Math.max(0.5, cart[id].jumlah_pembelian + d);
+  renderCart();
+}
+
+// ─── SIMPAN PEMBELIAN ─────────────────────────────────────────
+let isSaving = false;
+async function simpanPembelian() {
+  if (isSaving) { toast('⏳ Sedang menyimpan…'); return; }
+  const items = Object.values(cart);
+  if (!items.length) { toast('❌ Keranjang kosong!','error'); return; }
+  const tgl = document.getElementById('tglPembelian').value;
+  if (!tgl) { toast('❌ Isi tanggal!','error'); return; }
+
+  isSaving = true;
+  const snapshotItems = items.map(i => ({ ...i }));
+  // submit_id unik per sesi simpan — format: timestamp_tanggal agar mudah dilacak
+  const submitId = Date.now() + '_' + tgl.replace(/-/g,'');
+
+  cart = {}; renderCart();
+  const btn = document.getElementById('btnSimpanPembelian');
+  btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Menyimpan…';
+
+  const payload = {
+    action: 'insert',
+    table:  't_pembelian',
+    // receiver_url dikirim ke GAS agar GAS push balik ke MySQL
+    receiver_url: cfg.phpUrl || '',
+    data: {
+      _submit_id:        submitId,
+      _script_url:       cfg.scriptUrl || '', // ← receiver.php butuh ini untuk callback ke GAS
+      tanggal_pembelian: tgl,
+      rows: snapshotItems.map(i => ({
+        _submit_id:        submitId + '_' + i.id_databelanja,
+        id_databelanja:    i.id_databelanja,
+        nm_databelanja:    i.nm_databelanja || '',
+        jumlah_pembelian:  i.jumlah_pembelian,
+        satuan:            i.satuan,
+        harga_pembelian:   i.harga_pembelian,
+        tanggal_pembelian: tgl,
+      })),
+    },
+  };
+
+  // Cek apakah submit_id ini sudah pernah berhasil di-push (anti-duplikat ketat)
+  const pushedIds = getPushedIds();
+  if (pushedIds.has(submitId)) {
+    toast('⚠️ Data ini sudah pernah tersimpan ke Drive.', 'error');
+    btn.disabled = false; btn.innerHTML = '💾 Simpan & Kirim ke Drive';
+    isSaving = false;
+    return;
+  }
+
+  // Selalu simpan ke daily log terlebih dahulu
+  addToDaily('pembelian', {
+    _submit_id: submitId,
+    tanggal: tgl,
+    items: snapshotItems.map(i => ({ nama: i.nm_databelanja, jumlah: i.jumlah_pembelian, satuan: i.satuan, harga: i.harga_pembelian })),
+    total: snapshotItems.reduce((s,i) => s + i.harga_pembelian, 0),
+  });
+
+  if (isOnline && cfg.scriptUrl) {
+    const res = await callGAS(payload);
+    if (res === null) {
+      // callGAS return null = fetch gagal total (network error, bukan GAS error)
+      enqueue(payload);
+      toast('⚠️ Gagal kirim ke Drive (network error) — data masuk antrian offline.', 'error');
+      snapshotItems.forEach(i => { cart[i.id_databelanja] = i; });
+      renderCart();
+    } else if (res?.success) {
+      // Tandai sebagai sudah di-push ke Drive
+      addPushedId(submitId);
+      snapshotItems.forEach(i => addPushedId(submitId + '_' + i.id_databelanja));
+
+      const mysqlOk = res.sql?.success;
+
+      if (mysqlOk) {
+        // ✅ GAS berhasil push ke MySQL via receiver.php
+        toast('✅ Pembelian tersimpan ke Drive & MySQL!', 'success');
+      } else {
+        // GAS simpan ke Drive tapi MySQL belum dapat (UrlFetchApp error / phpUrl kosong)
+        // Coba push langsung dari app.html ke receiver.php
+        if (cfg.phpUrl) {
+          toast('⏳ Drive OK. Mencoba push langsung ke MySQL…');
+          const phpPayload = {
+            secret_token: cfg.token,
+            action: 'insert',
+            table: 't_pembelian',
+            data: {
+              _submit_id:  submitId,
+              _script_url: cfg.scriptUrl || '',  // untuk callback update id di Drive
+              rows: snapshotItems.map(i => ({
+                _submit_id:        submitId + '_' + i.id_databelanja,
+                id_databelanja:    i.id_databelanja,
+                nm_databelanja:    i.nm_databelanja || '',
+                jumlah_pembelian:  i.jumlah_pembelian,
+                satuan:            i.satuan,
+                harga_pembelian:   i.harga_pembelian,
+                tanggal_pembelian: tgl,
+              })),
+            },
+          };
+          try {
+            const phpRes = await fetch(cfg.phpUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' },
+              body: JSON.stringify(phpPayload),
+            });
+            const phpJson = await phpRes.json();
+            if (phpJson?.success) {
+              toast('✅ Drive OK + MySQL OK (push langsung)!', 'success');
+            } else {
+              toast('✅ Drive OK. ⚠️ MySQL gagal: ' + (phpJson?.message || 'cek URL receiver'), 'error');
+            }
+          } catch(e) {
+            toast('✅ Drive OK. ⚠️ MySQL gagal (tidak bisa hubungi receiver.php): ' + e.message, 'error');
+          }
+        } else {
+          toast('✅ Tersimpan ke Drive. ⚠️ URL PHP Receiver belum diisi di Atur — data belum masuk MySQL!', 'error');
+        }
+      }
+
+      const ts = new Date().toLocaleString('id-ID');
+      localStorage.setItem('ppsm_last_sync', ts);
+      document.getElementById('lastSync').textContent = ts;
+    } else {
+      // GAS merespons tapi success=false
+      enqueue(payload);
+      toast('⚠️ GAS error: ' + (res?.message || 'tidak diketahui') + ' — data masuk antrian.', 'error');
+      snapshotItems.forEach(i => { cart[i.id_databelanja] = i; });
+      renderCart();
+    }
+  } else {
+    // Offline → masukkan ke antrian
+    enqueue(payload);
+    toast('📵 Offline — data tersimpan lokal, akan di-push saat online.', 'error');
+  }
+
+  updateQueueBadge();
+  btn.disabled = false; btn.innerHTML = '💾 Simpan & Kirim ke Drive';
+  isSaving = false;
+}
+
+// ─── RIWAYAT DRILL-DOWN (Bulan → Minggu → Detail) ────────────
+let riwayatLevel = 'bulan'; // 'bulan' | 'minggu' | 'detail'
+let riwayatSelBulan = null; // 'YYYY-MM'
+let riwayatSelMinggu = null; // 1..5
+
+const NAMA_BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function getWeekOfMonth(dateStr) {
+  // Minggu ke-1 = tgl 1-7, ke-2 = 8-14, ke-3 = 15-21, ke-4 = 22-28, ke-5 = 29-31
+  const d = parseInt(dateStr.slice(8,10), 10);
+  return Math.ceil(d / 7);
+}
+
+function renderRiwayat() {
+  riwayatLevel = 'bulan';
+  riwayatSelBulan = null;
+  riwayatSelMinggu = null;
+  updateRiwayatBreadcrumb();
+  showRiwayatLevel('bulan');
+  renderBulanList();
+}
+
+function renderBulanList() {
+  const el = document.getElementById('listBulan');
+  if (!riwayatData.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Belum ada data</div></div>';
+    return;
+  }
+  // Kelompokkan per bulan
+  const bulanMap = {};
+  riwayatData.forEach(r => {
+    const tgl = (r.tanggal_pembelian||'').slice(0,7); // YYYY-MM
+    if (!tgl) return;
+    if (!bulanMap[tgl]) bulanMap[tgl] = { count: 0, total: 0 };
+    bulanMap[tgl].count++;
+    bulanMap[tgl].total += Number(r.harga_pembelian||0);
+  });
+  const sorted = Object.keys(bulanMap).sort().reverse();
+  el.innerHTML = sorted.map(k => {
+    const [y, m] = k.split('-');
+    const label = NAMA_BULAN[parseInt(m,10)-1] + ' ' + y;
+    return `<div class="list-item" onclick="riwayatPilihBulan('${k}')">
+      <div class="avatar avatar-amber">📅</div>
+      <div class="item-main">
+        <div class="item-name">${label}</div>
+        <div class="item-sub">${bulanMap[k].count} transaksi</div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount" style="color:var(--green)">${fmt(bulanMap[k].total)}</div>
+        <div class="item-date" style="color:var(--muted);font-size:11px">›</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function riwayatPilihBulan(bulan) {
+  riwayatSelBulan = bulan;
+  riwayatLevel = 'minggu';
+  updateRiwayatBreadcrumb();
+  showRiwayatLevel('minggu');
+
+  const [y, m] = bulan.split('-');
+  const label = NAMA_BULAN[parseInt(m,10)-1] + ' ' + y;
+  document.getElementById('titleMinggu').textContent = 'Pilih Minggu — ' + label;
+
+  // Data bulan ini
+  const items = riwayatData.filter(r => (r.tanggal_pembelian||'').slice(0,7) === bulan);
+  const mingguMap = {};
+  items.forEach(r => {
+    const w = getWeekOfMonth(r.tanggal_pembelian||'');
+    if (!mingguMap[w]) mingguMap[w] = { count: 0, total: 0, dates: new Set() };
+    mingguMap[w].count++;
+    mingguMap[w].total += Number(r.harga_pembelian||0);
+    mingguMap[w].dates.add((r.tanggal_pembelian||'').slice(0,10));
+  });
+
+  const el = document.getElementById('listMinggu');
+  el.innerHTML = Object.keys(mingguMap).sort((a,b)=>a-b).map(w => {
+    const range = getWeekRange(bulan, parseInt(w));
+    return `<div class="list-item" onclick="riwayatPilihMinggu(${w})">
+      <div class="avatar avatar-green">W${w}</div>
+      <div class="item-main">
+        <div class="item-name">Minggu ke-${w}</div>
+        <div class="item-sub">${range} · ${mingguMap[w].count} item</div>
+      </div>
+      <div class="item-right">
+        <div class="item-amount" style="color:var(--green)">${fmt(mingguMap[w].total)}</div>
+        <div class="item-date" style="color:var(--muted);font-size:11px">›</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getWeekRange(bulanStr, w) {
+  // w: 1-5
+  const start = (w-1)*7 + 1;
+  const [y, m] = bulanStr.split('-').map(Number);
+  const lastDay = new Date(y, m, 0).getDate();
+  const end = Math.min(w*7, lastDay);
+  return start + '–' + end + ' ' + NAMA_BULAN[m-1].slice(0,3);
+}
+
+function riwayatPilihMinggu(w) {
+  riwayatSelMinggu = w;
+  riwayatLevel = 'detail';
+  updateRiwayatBreadcrumb();
+  showRiwayatLevel('detail');
+
+  const [y, m] = riwayatSelBulan.split('-');
+  const label = NAMA_BULAN[parseInt(m,10)-1] + ' ' + y;
+  document.getElementById('titleDetail').textContent = `Data Belanja — Minggu ke-${w}, ${label}`;
+
+  const items = riwayatData.filter(r => {
+    const tgl = r.tanggal_pembelian||'';
+    return tgl.slice(0,7) === riwayatSelBulan && getWeekOfMonth(tgl) === w;
+  });
+
+  let total = 0;
+  items.forEach(r => total += Number(r.harga_pembelian||0));
+  document.getElementById('totalPeriode').textContent = fmt(total);
+  document.getElementById('jmlItemPeriode').textContent = items.length + ' item';
+
+  // Kelompokkan per tanggal
+  const tglMap = {};
+  items.forEach(r => {
+    const tgl = (r.tanggal_pembelian||'').slice(0,10);
+    if (!tglMap[tgl]) tglMap[tgl] = [];
+    tglMap[tgl].push(r);
+  });
+
+  const el = document.getElementById('listDetail');
+  if (!items.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Tidak ada data</div></div>';
+    return;
+  }
+  el.innerHTML = Object.keys(tglMap).sort().map(tgl => {
+    const rows = tglMap[tgl];
+    const subtotal = rows.reduce((s,r) => s + Number(r.harga_pembelian||0), 0);
+    return `<div style="padding:10px 16px 4px;background:var(--bg);border-bottom:1px solid var(--border)">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">${tgl} &nbsp;·&nbsp; ${fmt(subtotal)}</div>
+    </div>` + rows.map(r => `
+    <div class="list-item">
+      <div class="avatar avatar-amber">${(r.nm_databelanja||'?')[0]}</div>
+      <div class="item-main">
+        <div class="item-name">${r.nm_databelanja||'—'}</div>
+        <div class="item-sub">${r.jumlah_pembelian} ${r.satuan}</div>
+      </div>
+      <div class="item-right"><div class="item-amount">${fmt(r.harga_pembelian)}</div></div>
+    </div>`).join('');
+  }).join('');
+}
+
+function showRiwayatLevel(level) {
+  document.getElementById('riwayatLevelBulan').style.display  = level === 'bulan'  ? '' : 'none';
+  document.getElementById('riwayatLevelMinggu').style.display = level === 'minggu' ? '' : 'none';
+  document.getElementById('riwayatLevelDetail').style.display = level === 'detail' ? '' : 'none';
+}
+
+function updateRiwayatBreadcrumb() {
+  const bc = document.getElementById('riwayatBreadcrumb');
+  const bcBulan = document.getElementById('bcBulan');
+  const bcMinggu = document.getElementById('bcMinggu');
+  const bcSep = document.getElementById('bcSepMinggu');
+
+  if (riwayatLevel === 'bulan') {
+    bc.style.display = 'none';
+    return;
+  }
+  bc.style.display = 'flex';
+
+  if (riwayatSelBulan) {
+    const [y, m] = riwayatSelBulan.split('-');
+    bcBulan.textContent = '‹ ' + NAMA_BULAN[parseInt(m,10)-1] + ' ' + y;
+  }
+
+  if (riwayatLevel === 'detail' && riwayatSelMinggu) {
+    bcSep.style.display = '';
+    bcMinggu.style.display = '';
+    bcMinggu.textContent = 'Minggu ke-' + riwayatSelMinggu;
+  } else {
+    bcSep.style.display = 'none';
+    bcMinggu.style.display = 'none';
+  }
+}
+
+function riwayatGoLevel(level) {
+  if (level === 'bulan') { renderRiwayat(); }
+  else if (level === 'minggu' && riwayatSelBulan) { riwayatPilihBulan(riwayatSelBulan); }
+}
+
+function filterRiwayat() { /* tidak digunakan lagi, drill-down menggantikan search */ }
+
+// ─── SISWA UM ─────────────────────────────────────────────────
+function getBulanBelumBayar(siswaId) {
+  // Cari id_pengguna (untuk MySQL match) dari siswaData
+  const siswa = siswaData.find(s => s.id_pengguna_siswa === siswaId);
+  const idPengguna = siswa?._id_pengguna || siswa?.id_pengguna || siswaId;
+
+  const paidMonths = new Set();
+  umData.forEach(u => {
+    if (String(u.id_pengguna_siswa) === String(idPengguna) || String(u.id_pengguna_siswa) === String(siswaId)) {
+      const tgl = (u.tanggalx_pembayaran_um||'').slice(0,7);
+      if (tgl) paidMonths.add(tgl);
+    }
+  });
+
+  const today = new Date();
+  const unpaid = [];
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    if (!paidMonths.has(key)) {
+      unpaid.push({ key, label: NAMA_BULAN[d.getMonth()] + ' ' + d.getFullYear() });
+    }
+  }
+  return unpaid;
+}
+
+function getPaidMonthsForSiswa(siswaId) {
+  const siswa = siswaData.find(s => s.id_pengguna_siswa === siswaId);
+  const idPengguna = siswa?._id_pengguna || siswa?.id_pengguna || siswaId;
+
+  const byMonth = {};
+  umData.forEach(u => {
+    if (String(u.id_pengguna_siswa) !== String(idPengguna) && String(u.id_pengguna_siswa) !== String(siswaId)) return;
+    const tgl = (u.tanggalx_pembayaran_um||'').slice(0,7);
+    if (!tgl) return;
+    if (!byMonth[tgl]) byMonth[tgl] = [];
+    byMonth[tgl].push(u);
+  });
+  return byMonth;
+}
+
+function renderSiswaUM(q='') {
+  q = q.toLowerCase();
+  const items = siswaData.filter(s =>
+    s.status_siswa_pengguna_siswa === 'Mukim' &&
+    !s.is_keluar &&
+    (!q || s.nm_pengguna.toLowerCase().includes(q))
+  );
+  const el = document.getElementById('listSiswaUM');
+  if (!items.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-text">Tidak ada siswa mukim</div></div>'; return; }
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = items.map(s => {
+    const sel = selectedSiswaUM?.id_pengguna_siswa === s.id_pengguna_siswa;
+    const nomVal = sel ? (document.getElementById('umNominal')?.value || '500.000') : '500.000';
+    const tglVal = sel ? (document.getElementById('umTanggal')?.value || today) : today;
+    const ketVal = sel ? (document.getElementById('umKet')?.value || 'Bayar Uang Makan') : 'Bayar Uang Makan';
+
+    // Bulan belum bayar
+    const unpaid = getBulanBelumBayar(s.id_pengguna_siswa);
+    const unpaidBadge = unpaid.length
+      ? `<span style="background:var(--red-lt);color:var(--red);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px">${unpaid.length} bulan belum bayar</span>`
+      : `<span style="background:var(--green-lt);color:var(--green);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px">✓ Lunas</span>`;
+
+    // Riwayat pembayaran per bulan (untuk ditampilkan di bawah tombol simpan)
+    const paidByMonth = getPaidMonthsForSiswa(s.id_pengguna_siswa);
+    const paidMonthsSorted = Object.keys(paidByMonth).sort().reverse().slice(0,6);
+    const riwayatHTML = paidMonthsSorted.length ? `
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px">Riwayat Pembayaran</div>
+        ${paidMonthsSorted.map(m => {
+          const [y, mo] = m.split('-');
+          const mLabel = NAMA_BULAN[parseInt(mo,10)-1] + ' ' + y;
+          const rows = paidByMonth[m];
+          return `<div style="margin-bottom:6px">
+            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:3px">${mLabel}</div>
+            ${rows.map(u => `<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text);padding:3px 0;border-bottom:1px solid var(--border)">
+              <span>${(u.tanggalx_pembayaran_um||'').slice(0,10)} · ${u.keterangan_pembayaran_um||'—'}</span>
+              <span style="font-weight:700;font-family:'DM Mono',monospace">${fmt(u.nominal_pembayaran_um)}</span>
+            </div>`).join('')}
+          </div>`;
+        }).join('')}
+      </div>` : '';
+
+    // Daftar bulan belum bayar untuk ditampilkan saat dipilih
+    const unpaidListHTML = unpaid.length ? `
+      <div style="margin-bottom:10px;padding:8px 12px;background:var(--red-lt);border-radius:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:4px">Belum bayar:</div>
+        ${unpaid.map(u => `<div style="font-size:12px;color:var(--red)">• ${u.label}</div>`).join('')}
+      </div>` : `<div style="margin-bottom:10px;padding:8px 12px;background:var(--green-lt);border-radius:8px;font-size:12px;color:var(--green);font-weight:600">✓ 6 bulan terakhir sudah lunas</div>`;
+
+    return `<div>
+      <div class="list-item${sel?' selected':''}" onclick="pilihSiswaUM(${s.id_pengguna_siswa})" style="cursor:pointer">
+        <div class="avatar avatar-blue">${s.nm_pengguna[0]}</div>
+        <div class="item-main">
+          <div class="item-name">${s.nm_pengguna}</div>
+          <div class="item-sub">${s.jenjang} · ${s.gender_siswa}</div>
+          <div style="margin-top:4px">${unpaidBadge}</div>
+        </div>
+        <span style="color:var(--green);font-size:16px;margin-left:8px">${sel ? '▲' : '▼'}</span>
+      </div>
+      ${sel ? `<div style="background:var(--green-lt);padding:14px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="font-size:16px">💰</span>
+          <span style="font-size:13px;font-weight:700;color:var(--green)">${s.nm_pengguna}</span>
+          <button style="margin-left:auto;background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted)" onclick="clearSiswaUM()">✕</button>
+        </div>
+        ${unpaidListHTML}
+        <div class="field" style="margin-bottom:10px">
+          <label style="font-size:11px">Nominal Pembayaran (nominal_pembayaran_um)</label>
+          <input type="text" inputmode="numeric" id="umNominal" value="${nomVal}"
+            style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fff;outline:none"
+            oninput="formatHargaInput(this)">
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label style="font-size:11px">Tanggal Bayar (tanggalx_pembayaran_um)</label>
+          <input type="date" id="umTanggal" value="${tglVal}"
+            style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+        </div>
+        <div class="field" style="margin-bottom:12px">
+          <label style="font-size:11px">Keterangan (keterangan_pembayaran_um)</label>
+          <input type="text" id="umKet" value="${ketVal}"
+            style="width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;background:#fff;outline:none">
+        </div>
+        <button class="btn btn-primary" id="btnSimpanUM" onclick="simpanUangMakan()" style="padding:10px">
+          💾 Simpan Pembayaran
+        </button>
+        ${riwayatHTML}
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+function filterSiswaUM() { renderSiswaUM(document.getElementById('searchSiswaUM').value); }
+
+// Refresh data siswa & UM dari MySQL setiap kali tab dibuka (jika ada phpUrl)
+async function refreshSiswaUM() {
+  if (!cfg.phpUrl || !isOnline) return;
+  try {
+    const [rSiswa, rUM] = await Promise.all([
+      fetch(cfg.phpUrl + '?action=get_siswa', { redirect: 'follow' }),
+      fetch(cfg.phpUrl + '?action=get_um',    { redirect: 'follow' }),
+    ]);
+    const siswaJson = await rSiswa.json();
+    const umJson    = await rUM.json();
+    if (Array.isArray(siswaJson)) {
+      siswaData = siswaJson.map(s => ({ ...s, _id_pengguna: s.id_pengguna }));
+      renderSiswaUM(document.getElementById('searchSiswaUM').value);
+    }
+    if (Array.isArray(umJson)) {
+      umData = umJson;
+      renderUM();
+    }
+  } catch(e) {
+    console.warn('refreshSiswaUM error:', e.message);
+  }
+}
+
+function pilihSiswaUM(id) {
+  if (selectedSiswaUM?.id_pengguna_siswa === id) { clearSiswaUM(); return; }
+  selectedSiswaUM = siswaData.find(s => s.id_pengguna_siswa === id);
+  if (!selectedSiswaUM) return;
+  renderSiswaUM(document.getElementById('searchSiswaUM').value);
+  setTimeout(() => {
+    const items = document.querySelectorAll('#listSiswaUM .list-item.selected');
+    if (items.length) items[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+}
+function clearSiswaUM() { selectedSiswaUM = null; renderSiswaUM(document.getElementById('searchSiswaUM').value); }
+
+// ─── SIMPAN UANG MAKAN ────────────────────────────────────────
+let isSavingUM = false;
+async function simpanUangMakan() {
+  if (isSavingUM) { toast('⏳ Sedang menyimpan…'); return; }
+  if (!selectedSiswaUM) { toast('❌ Pilih siswa dulu!','error'); return; }
+  const nominal = parseRp(document.getElementById('umNominal').value);
+  if (!nominal) { toast('❌ Isi nominal!','error'); return; }
+
+  isSavingUM = true;
+  const btn = document.getElementById('btnSimpanUM');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="loader"></span> Menyimpan…'; }
+
+  const tgl = document.getElementById('umTanggal').value;
+  const ket = document.getElementById('umKet').value || 'Bayar Uang Makan';
+  const submitId = Date.now() + '_um_' + selectedSiswaUM.id_pengguna_siswa;
+
+  const pushedIds = getPushedIds();
+  if (pushedIds.has(submitId)) {
+    toast('⚠️ Pembayaran ini sudah pernah tersimpan.', 'error');
+    if (btn) { btn.disabled = false; btn.innerHTML = '💾 Simpan Pembayaran'; }
+    isSavingUM = false; return;
+  }
+
+  // id_pengguna_siswa yang dikirim ke MySQL harus berupa id_pengguna dari tabel pengguna
+  // (bukan PK dari tabel pengguna_siswa). Ini persis seperti pembayaran-makan.php:
+  //   $data['id_pengguna_siswa'] = $id_siswa_terpilih;  // = pengguna.id_pengguna
+  // get_siswa di receiver.php sudah JOIN sehingga _id_pengguna = pengguna.id_pengguna.
+  // Fallback ke id_pengguna_siswa jika receiver.php tidak tersedia (phpUrl kosong).
+  const idSiswaForMySQL = selectedSiswaUM._id_pengguna || selectedSiswaUM.id_pengguna || selectedSiswaUM.id_pengguna_siswa;
+
+  const data = {
+    _submit_id:               submitId,
+    _script_url:              cfg.scriptUrl || '', // untuk callback update id_pembayaran_um ke Drive
+    id_pengguna_siswa:        idSiswaForMySQL,     // = pengguna.id_pengguna (bukan PK pengguna_siswa)
+    nm_pengguna:              selectedSiswaUM.nm_pengguna || '',
+    id_pengguna_petugas:      Number(cfg.petugas),
+    nominal_pembayaran_um:    nominal,
+    tanggalx_pembayaran_um:   tgl + ' 00:00:00',
+    keterangan_pembayaran_um: ket,
+    status:                   'diam',
+    row_1:                    0,
+    pengiriman_status:        'proses',
+  };
+  const payload = { action:'insert', table:'pembayaran_um', data, receiver_url: cfg.phpUrl || '' };
+
+  // Simpan ke daily log
+  addToDaily('um', {
+    _submit_id:   submitId,
+    nama_siswa:   selectedSiswaUM.nm_pengguna,
+    nominal,
+    tanggal:      tgl,
+    keterangan:   ket,
+  });
+
+  if (isOnline && cfg.scriptUrl) {
+    const res = await callGAS(payload);
+    if (res?.success) {
+      addPushedId(submitId);
+      const mysqlOk = res.sql?.success;
+      if (mysqlOk) {
+        toast('✅ Pembayaran tersimpan ke Drive & MySQL!', 'success');
+      } else {
+        // GAS simpan ke Drive tapi MySQL belum dapat — coba push langsung ke receiver.php
+        if (cfg.phpUrl) {
+          toast('⏳ Drive OK. Mencoba push langsung ke MySQL…');
+          const phpPayload = {
+            secret_token: cfg.token,
+            action: 'insert',
+            table: 'pembayaran_um',
+            data: {
+              _submit_id:               submitId,
+              _script_url:              cfg.scriptUrl || '',
+              id_pengguna_siswa:        idSiswaForMySQL, // = pengguna.id_pengguna
+              nm_pengguna:              selectedSiswaUM.nm_pengguna || '',
+              id_pengguna_petugas:      Number(cfg.petugas),
+              nominal_pembayaran_um:    nominal,
+              tanggalx_pembayaran_um:   tgl + ' 00:00:00',
+              keterangan_pembayaran_um: ket,
+              status:                   'diam',
+              row_1:                    0,
+              pengiriman_status:        'proses',
+            },
+          };
+          try {
+            const phpRes = await fetch(cfg.phpUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' },
+              body: JSON.stringify(phpPayload),
+            });
+            const phpJson = await phpRes.json();
+            if (phpJson?.success) {
+              toast('✅ Drive OK + MySQL OK (push langsung)!', 'success');
+            } else {
+              toast('✅ Drive OK. ⚠️ MySQL gagal: ' + (phpJson?.message || 'cek URL receiver'), 'error');
+            }
+          } catch(e2) {
+            toast('✅ Drive OK. ⚠️ MySQL gagal: ' + e2.message, 'error');
+          }
+        } else {
+          toast('✅ Drive OK. ⚠️ URL PHP Receiver belum diisi di Atur!', 'error');
+        }
+      }
+      clearSiswaUM();
+      loadData();
+    } else {
+      enqueue(payload);
+      toast('⚠️ Drive gagal — data masuk antrian offline.', 'error');
+    }
+  } else {
+    enqueue(payload);
+    toast('📵 Offline — pembayaran tersimpan lokal.', 'error');
+    clearSiswaUM();
+  }
+
+  updateQueueBadge();
+  if (btn) { btn.disabled = false; btn.innerHTML = '💾 Simpan Pembayaran'; }
+  isSavingUM = false;
+}
+
+// renderUM dihapus — riwayat UM per siswa sekarang ditampilkan inline di renderSiswaUM()
+function renderUM() { /* tidak digunakan lagi */ }
+
+
+
+
+
+// ─── DAILY LOG RENDER (di halaman Pengaturan) ─────────────────
+function renderDailyLogList() {
+  const el = document.getElementById('dailyLogList');
+  if (!el) return;
+  const log = getDailyLog();
+  const dates = Object.keys(log).sort().reverse().slice(0, 7); // 7 hari terakhir
+  if (!dates.length) { el.innerHTML = '<div style="padding:14px;text-align:center;font-size:13px;color:var(--muted)">Belum ada data tersimpan</div>'; return; }
+  el.innerHTML = dates.map(date => {
+    const day = log[date];
+    const pembelianCount = day.pembelian?.length || 0;
+    const umCount = day.um?.length || 0;
+    const totalPembelian = (day.pembelian || []).reduce((s, p) => s + (p.total||0), 0);
+    const totalUM = (day.um || []).reduce((s, u) => s + (u.nominal||0), 0);
+    return `<div style="border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;padding:12px 16px;gap:10px;cursor:pointer;background:var(--bg)"
+           onclick="toggleDailyDetail('${date}')">
+        <div style="font-size:13px;font-weight:700;flex:1">📅 ${date}</div>
+        <div style="font-size:11px;color:var(--muted);text-align:right">
+          ${pembelianCount} pembelian · ${umCount} UM
+        </div>
+        <span style="font-size:13px;color:var(--muted)" id="chevron_${date}">▼</span>
+      </div>
+      <div id="detail_${date}" style="display:none;padding:0 16px 12px">
+        ${pembelianCount ? `<div style="font-size:12px;font-weight:600;color:var(--green);margin:8px 0 4px">🛒 Pembelian (${pembelianCount} submit)</div>
+        ${(day.pembelian||[]).map(p => {
+          const pushedIds = getPushedIds();
+          const isPushed = pushedIds.has(String(p._submit_id));
+          const q = getQueue();
+          const isQueued = q.some(qi => {
+            const sid = qi.payload?.data?._submit_id;
+            return sid && String(sid) === String(p._submit_id);
+          });
+          const statusBadge = isPushed
+            ? '<span style="font-size:10px;background:var(--green-lt);color:var(--green);padding:2px 6px;border-radius:8px;font-weight:600">✓ Tersimpan</span>'
+            : isQueued
+            ? '<span style="font-size:10px;background:var(--amber-lt);color:var(--amber);padding:2px 6px;border-radius:8px;font-weight:600">⏳ Antrian</span>'
+            : '<span style="font-size:10px;background:var(--red-lt);color:var(--red);padding:2px 6px;border-radius:8px;font-weight:600">⚠️ Belum push</span>';
+          return `<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)">
+            <div style="flex:1">
+              <div style="font-size:12px">${(p.items||[]).map(i => i.nama + ' ' + i.jumlah + ' ' + i.satuan).join(', ')}</div>
+              <div style="font-size:11px;color:var(--muted)">${p.tanggal} · ${fmt(p.total)}</div>
+            </div>
+            ${statusBadge}
+          </div>`;
+        }).join('')}` : ''}
+        ${umCount ? `<div style="font-size:12px;font-weight:600;color:var(--blue);margin:8px 0 4px">💰 Uang Makan (${umCount} pembayaran)</div>
+        ${(day.um||[]).map(u => {
+          const pushedIds = getPushedIds();
+          const isPushed = pushedIds.has(String(u._submit_id));
+          const q = getQueue();
+          const isQueued = q.some(qi => {
+            const sid = qi.payload?.data?._submit_id;
+            return sid && String(sid) === String(u._submit_id);
+          });
+          const statusBadge = isPushed
+            ? '<span style="font-size:10px;background:var(--green-lt);color:var(--green);padding:2px 6px;border-radius:8px;font-weight:600">✓ Tersimpan</span>'
+            : isQueued
+            ? '<span style="font-size:10px;background:var(--amber-lt);color:var(--amber);padding:2px 6px;border-radius:8px;font-weight:600">⏳ Antrian</span>'
+            : '<span style="font-size:10px;background:var(--red-lt);color:var(--red);padding:2px 6px;border-radius:8px;font-weight:600">⚠️ Belum push</span>';
+          return `<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)">
+            <div style="flex:1">
+              <div style="font-size:12px">${u.nama_siswa}</div>
+              <div style="font-size:11px;color:var(--muted)">${u.tanggal} · ${fmt(u.nominal)}</div>
+            </div>
+            ${statusBadge}
+          </div>`;
+        }).join('')}` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleDailyDetail(date) {
+  const el = document.getElementById('detail_' + date);
+  const ch = document.getElementById('chevron_' + date);
+  if (!el) return;
+  const open = el.style.display === 'none';
+  el.style.display = open ? '' : 'none';
+  if (ch) ch.textContent = open ? '▲' : '▼';
+}
+
+// ─── QUEUE LIST RENDER ────────────────────────────────────────
+function renderQueueList() {
+  const el = document.getElementById('queueList');
+  if (!el) return;
+  const q = getQueue();
+  if (!q.length) {
+    el.innerHTML = '<div style="padding:12px 16px;font-size:13px;color:var(--green)">✅ Semua data sudah ter-push ke Drive</div>';
+    return;
+  }
+  el.innerHTML = q.map(item => {
+    const p = item.payload;
+    const tbl = p.table === 't_pembelian' ? '🛒 Pembelian' : p.table === 'pembayaran_um' ? '💰 Uang Makan' : p.table;
+    const at  = item.enqueued_at ? item.enqueued_at.slice(0,16).replace('T',' ') : '—';
+    const count = p.data?.rows?.length || 1;
+    return `<div style="display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:8px">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${tbl}</div>
+        <div style="font-size:11px;color:var(--muted)">${at} · ${count} item</div>
+      </div>
+      <span style="font-size:10px;background:var(--amber-lt);color:var(--amber);padding:2px 8px;border-radius:8px;font-weight:600">PENDING</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── CONFIG ───────────────────────────────────────────────────
+function simpanConfig() {
+  cfg.scriptUrl = document.getElementById('cfgScriptUrl').value.trim();
+  cfg.token     = document.getElementById('cfgToken').value.trim();
+  cfg.phpUrl    = document.getElementById('cfgPhpUrl').value.trim();
+  cfg.petugas   = document.getElementById('cfgPetugas').value.trim();
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  checkReceiverWarning();
+
+  // Sembunyikan wizard setup jika URL sudah diisi
+  const wizard = document.getElementById('setupWizard');
+  if (wizard) wizard.style.display = cfg.scriptUrl ? 'none' : 'block';
+
+  // Update status panel awal
+  setChk('chkGASUrl', cfg.scriptUrl ? 'ok' : 'fail');
+  setChk('chkPhpUrl', cfg.phpUrl ? 'ok' : 'warn');
+
+  toast('✅ Config disimpan! Memuat data…','success');
+  setTimeout(() => {
+    checkRealConnectivity().then(() => loadData());
+  }, 100);
+}
+function checkReceiverWarning() {
+  const w = document.getElementById('receiverWarning');
+  if (w) w.style.display = cfg.phpUrl ? 'none' : 'block';
+  // Juga tampilkan di pengaturanNotif jika belum ada phpUrl
+  const notif = document.getElementById('pengaturanNotif');
+  if (notif && !cfg.phpUrl && !getQueue().length) {
+    notif.style.display = 'flex';
+    notif.querySelector('div:last-child').innerHTML =
+      '<div style="font-size:13px;font-weight:700;color:var(--amber)">URL Receiver PHP belum diisi!</div>' +
+      '<div style="font-size:12px;color:var(--amber);margin-top:2px">Data tidak akan masuk MySQL secara otomatis. Isi URL Receiver di bawah.</div>';
+  }
+}
+async function testKoneksi() {
+  if (!cfg.scriptUrl) { toast('❌ Isi URL Apps Script dulu!','error'); return; }
+  toast('⏳ Mengetes koneksi…');
+  const res = await callGAS({ action:'ping' });
+  if (res?.success) {
+    toast('✅ '+res.message,'success');
+    setOnline(true);
+    document.getElementById('infoGAS').textContent = 'Aktif ✓';
+  } else {
+    toast('❌ Gagal terhubung ke Apps Script','error');
+    setOnline(false);
+    document.getElementById('infoGAS').textContent = 'Gagal ✗';
+  }
+  // Jalankan diagnostik lengkap
+  runDiagnostik();
+}
+
+// ─── DIAGNOSTIK ───────────────────────────────────────────────
+function setChk(id, state) {
+  // state: 'ok' | 'fail' | 'warn' | 'pending'
+  const el = document.getElementById(id);
+  if (!el) return;
+  const map = { ok:'✅', fail:'❌', warn:'⚠️', pending:'⏳', skip:'⬜' };
+  el.textContent = map[state] || '⬜';
+}
+async function runDiagnostik() {
+  const diagMsg = document.getElementById('diagMsg');
+  diagMsg.style.display = 'none';
+  const msgs = [];
+
+  // 1. Cek internet
+  setChk('chkInternet', navigator.onLine ? 'ok' : 'fail');
+  if (!navigator.onLine) msgs.push('❌ Tidak ada koneksi internet.');
+
+  // 2. Cek URL GAS
+  const hasUrl = !!cfg.scriptUrl;
+  setChk('chkGASUrl', hasUrl ? 'ok' : 'fail');
+  if (!hasUrl) {
+    msgs.push('❌ URL Apps Script belum diisi. Isi di kolom Konfigurasi lalu klik Simpan.');
+    showDiagMsg(msgs); return;
+  }
+
+  // 3. Ping GAS
+  setChk('chkGASReach', 'pending');
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 10000);
+    const pingUrl = cfg.scriptUrl + '?action=ping&token=' + encodeURIComponent(cfg.token) + '&_=' + Date.now();
+    const r = await fetch(pingUrl, { method:'GET', signal:ctrl.signal, cache:'no-store', redirect:'follow' });
+    clearTimeout(tid);
+    let body = null;
+    try { body = await r.json(); } catch(e) {}
+    if (r.ok && body?.success) {
+      setChk('chkGASReach', 'ok');
+    } else if (r.ok) {
+      setChk('chkGASReach', 'warn');
+      msgs.push('⚠️ GAS merespons HTTP 200 tapi success=false. Cek token dan pastikan GAS sudah di-deploy.');
+    } else {
+      setChk('chkGASReach', 'fail');
+      msgs.push('❌ GAS merespons HTTP ' + r.status + '. Pastikan URL deployment benar.');
+    }
+  } catch(e) {
+    setChk('chkGASReach', 'fail');
+    if (e.name === 'AbortError') {
+      msgs.push('❌ GAS timeout (>10 detik). Kemungkinan URL salah atau GAS belum di-deploy.');
+    } else {
+      msgs.push('❌ Gagal menghubungi GAS: ' + e.message);
+    }
+    showDiagMsg(msgs); return;
+  }
+
+  // 4. Cek baca data dari Drive
+  setChk('chkDrive', 'pending');
+  try {
+    const r2 = await fetch(cfg.scriptUrl + '?action=get_data&token=' + encodeURIComponent(cfg.token) + '&_=' + Date.now(), { redirect:'follow' });
+    const body2 = await r2.json();
+    if (body2?.success && body2?.data) {
+      setChk('chkDrive', 'ok');
+      const tbl = Object.keys(body2.data).filter(k => k !== '_updated');
+      msgs.push('✅ Drive OK. Tabel: ' + tbl.join(', '));
+    } else {
+      setChk('chkDrive', 'warn');
+      msgs.push('⚠️ GAS merespons tapi data kosong: ' + (body2?.message || 'tidak ada pesan'));
+    }
+  } catch(e) {
+    setChk('chkDrive', 'fail');
+    msgs.push('❌ Gagal membaca data dari Drive: ' + e.message);
+  }
+
+  // 5. Cek PHP URL
+  setChk('chkPhpUrl', cfg.phpUrl ? 'ok' : 'warn');
+  if (!cfg.phpUrl) msgs.push('⚠️ URL PHP Receiver belum diisi — data tidak akan masuk MySQL, hanya ke Drive.');
+
+  showDiagMsg(msgs);
+}
+function showDiagMsg(msgs) {
+  const el = document.getElementById('diagMsg');
+  if (!msgs.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.style.background = msgs.some(m=>m.startsWith('❌')) ? 'var(--red-lt)' : 'var(--amber-lt)';
+  el.style.color = msgs.some(m=>m.startsWith('❌')) ? 'var(--red)' : 'var(--amber)';
+  el.innerHTML = msgs.join('<br>');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('tglPembelian').value = new Date().toISOString().slice(0,10);
+  document.getElementById('cfgScriptUrl').value = cfg.scriptUrl||'';
+  document.getElementById('cfgToken').value     = cfg.token;
+  document.getElementById('cfgPhpUrl').value    = cfg.phpUrl||'';
+  document.getElementById('cfgPetugas').value   = cfg.petugas;
+  const ls = localStorage.getItem('ppsm_last_sync');
+  if (ls) document.getElementById('lastSync').textContent = ls;
+
+  // Tampilkan setup wizard jika URL GAS belum diisi
+  const wizard = document.getElementById('setupWizard');
+  if (wizard) wizard.style.display = cfg.scriptUrl ? 'none' : 'block';
+
+  // Update status panel checks awal
+  setChk('chkInternet', navigator.onLine ? 'ok' : 'fail');
+  setChk('chkGASUrl',   cfg.scriptUrl ? 'ok' : 'fail');
+  setChk('chkPhpUrl',   cfg.phpUrl ? 'ok' : 'warn');
+
+  if (!cfg.scriptUrl) {
+    toast('⚠️ Isi URL Apps Script di tab Atur lalu klik Simpan!', 'error');
+  }
+  updateOnlineUI();
+  checkReceiverWarning();
+  // Cek koneksi nyata saat pertama buka, lalu heartbeat tiap 30 detik
+  checkRealConnectivity();
+  startHeartbeat();
+  loadData();
+});
+</script>
+</body>
+</html>
